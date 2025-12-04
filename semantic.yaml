@@ -1,0 +1,222 @@
+name: SEMANTIC_VIEW_v_1
+tables:
+  - name: PROPENSITY_TRAINING_DATA
+    description: This table stores data related to insurance quotes, including quote details, agent information, and customer characteristics, to train a model for predicting the likelihood of a customer purchasing an insurance policy.
+    base_table:
+      database: INSURANCE
+      schema: OPERATIONS
+      table: PROPENSITY_TRAINING_DATA
+    dimensions:
+      - name: AGENT_ID
+        description: Unique identifier for the agent who handled the customer interaction.
+        expr: AGENT_ID
+        data_type: VARCHAR(16777216)
+        sample_values:
+          - AG-01
+          - AG-03
+          - AG-17
+      - name: COVERAGE_LIMIT
+        description: The maximum amount of coverage provided by an insurance policy, represented as a ratio of the coverage limit to the maximum payout, e.g. 1 million to 2 million dollars.
+        expr: COVERAGE_LIMIT
+        data_type: VARCHAR(16777216)
+        sample_values:
+          - 1M/2M
+          - 2M/4M
+          - 5M/10M
+      - name: HAS_PRIOR_INCIDENTS
+        description: Indicates whether the individual has had a prior incident or accident.
+        expr: HAS_PRIOR_INCIDENTS
+        data_type: BOOLEAN
+        sample_values:
+          - 'FALSE'
+          - 'TRUE'
+      - name: IS_LICENSED
+        description: Indicates whether the customer has a valid license to operate a vehicle.
+        expr: IS_LICENSED
+        data_type: BOOLEAN
+        sample_values:
+          - 'FALSE'
+          - 'TRUE'
+      - name: PERFORMS_BACKGROUND_CHECKS
+        description: Indicates whether the employer performs background checks on new hires.
+        expr: PERFORMS_BACKGROUND_CHECKS
+        data_type: BOOLEAN
+        sample_values:
+          - 'FALSE'
+          - 'TRUE'
+      - name: PRODUCT_TYPE
+        description: Type of insurance product being offered, including liability, property, and auto insurance.
+        expr: PRODUCT_TYPE
+        data_type: VARCHAR(16777216)
+        sample_values:
+          - Liability
+          - Property
+          - Auto
+      - name: QUOTE_CHANNEL
+        description: The channel through which the customer received a quote for a product or service, indicating whether the quote was provided by a sales agent, over the phone, or through an online platform.
+        expr: QUOTE_CHANNEL
+        data_type: VARCHAR(16777216)
+        sample_values:
+          - agent
+          - phone
+          - online
+      - name: QUOTE_ID
+        description: Unique identifier for a quote in the system, used to track and reference specific quotes throughout the training data.
+        expr: QUOTE_ID
+        data_type: VARCHAR(16777216)
+        sample_values:
+          - Q-001
+          - Q-002
+          - Q-010
+      - name: STATE
+        description: The two-letter abbreviation for the state in the United States where the customer resides.
+        expr: STATE
+        data_type: VARCHAR(16777216)
+        sample_values:
+          - TX
+          - CA
+          - NY
+    time_dimensions:
+      - name: QUOTE_DATE
+        description: Date on which the insurance quote was generated.
+        expr: QUOTE_DATE
+        data_type: DATE
+        sample_values:
+          - '2025-07-02'
+          - '2025-07-03'
+          - '2025-07-21'
+    facts:
+      - name: DEDUCTIBLE_AMOUNT
+        description: The amount of money that the policyholder must pay out of pocket before the insurance coverage kicks in.
+        expr: DEDUCTIBLE_AMOUNT
+        data_type: FLOAT
+        access_modifier: public_access
+        sample_values:
+          - '250'
+          - '500'
+          - '1000'
+      - name: NUM_CHILDREN
+        description: The number of children in the household.
+        expr: NUM_CHILDREN
+        data_type: NUMBER(38,0)
+        access_modifier: public_access
+        sample_values:
+          - '2'
+          - '1'
+          - '0'
+      - name: QUOTED_PREMIUM
+        description: The quoted premium is the amount of money that an insurance policyholder is expected to pay for a specific insurance policy, as quoted by the insurance company.
+        expr: QUOTED_PREMIUM
+        data_type: FLOAT
+        access_modifier: public_access
+        sample_values:
+          - '800'
+          - '900'
+          - '1800.75'
+      - name: YEARS_IN_BUSINESS
+        description: The number of years the customer has been in business.
+        expr: YEARS_IN_BUSINESS
+        data_type: NUMBER(38,0)
+        access_modifier: public_access
+        sample_values:
+          - '2'
+          - '1'
+          - '5'
+verified_queries:
+  - name: How many insurance quotes are in our training dataset?
+    question: How many insurance quotes are in our training dataset?
+    sql: |-
+      SELECT
+        COUNT(1) AS "COUNT(LITERAL())"
+      FROM
+        (
+          SELECT
+            propensity_training_data.agent_id AS agent_id,
+            propensity_training_data.coverage_limit AS coverage_limit,
+            propensity_training_data.has_prior_incidents AS has_prior_incidents,
+            propensity_training_data.is_licensed AS is_licensed,
+            propensity_training_data.performs_background_checks AS performs_background_checks,
+            propensity_training_data.product_type AS product_type,
+            propensity_training_data.quote_channel AS quote_channel,
+            propensity_training_data.quote_id AS quote_id,
+            propensity_training_data.state AS state,
+            propensity_training_data.quote_date AS quote_date,
+            propensity_training_data.deductible_amount AS deductible_amount,
+            propensity_training_data.num_children AS num_children,
+            propensity_training_data.quoted_premium AS quoted_premium,
+            propensity_training_data.years_in_business AS years_in_business
+          FROM
+            propensity_training_data AS propensity_training_data
+        ) AS _q_0
+      LIMIT
+        1
+    use_as_onboarding_question: false
+    verified_by: Elie Niringiyimana
+    verified_at: 1762790077
+  - name: What is the average premium for auto insurance quotes in California and what time period does our data cover?
+    question: What is the average premium for auto insurance quotes in California and what time period does our data cover?
+    sql: |-
+      WITH __propensity_training_data AS (
+        SELECT
+          propensity_training_data.product_type AS product_type,
+          propensity_training_data.state AS state,
+          propensity_training_data.quote_date AS quote_date,
+          propensity_training_data.quoted_premium AS quoted_premium
+        FROM
+          __propensity_training_data AS propensity_training_data
+      )
+      SELECT
+        AVG(__propensity_training_data.quoted_premium) AS avg_quoted_premium,
+        MIN(__propensity_training_data.quote_date) AS start_date,
+        MAX(__propensity_training_data.quote_date) AS end_date
+      FROM
+        __propensity_training_data AS __propensity_training_data
+      WHERE
+        __propensity_training_data.product_type = 'Auto'
+        AND __propensity_training_data.state = 'CA'
+    use_as_onboarding_question: false
+    verified_by: Elie Niringiyimana
+    verified_at: 1762790083
+  - name: What are the key customer characteristics and quote details for a sample of insurance quotes to analyze factors that might influence purchase likelihood?
+    question: What are the key customer characteristics and quote details for a sample of insurance quotes to analyze factors that might influence purchase likelihood?
+    sql: |-
+      SELECT
+        propensity_training_data.years_in_business AS years_in_business,
+        propensity_training_data.num_children AS num_children,
+        propensity_training_data.quoted_premium AS quoted_premium,
+        propensity_training_data.deductible_amount AS deductible_amount,
+        CASE
+          WHEN propensity_training_data.is_licensed THEN CAST(1 AS INT)
+          ELSE CAST(0 AS INT)
+        END AS is_licensed_num,
+        CASE
+          WHEN propensity_training_data.has_prior_incidents THEN CAST(1 AS INT)
+          ELSE CAST(0 AS INT)
+        END AS has_prior_incidents_num,
+        CASE
+          WHEN propensity_training_data.performs_background_checks THEN CAST(1 AS INT)
+          ELSE CAST(0 AS INT)
+        END AS performs_background_checks_num,
+        propensity_training_data.product_type AS product_type
+      FROM
+        propensity_training_data AS propensity_training_data
+      LIMIT
+        5
+    use_as_onboarding_question: false
+    verified_by: Elie Niringiyimana
+    verified_at: 1762790087
+  - name: What is the average quoted premium for Auto insurance policies in California?
+    question: What is the average quoted premium for Auto insurance policies in California?
+    sql: |-
+      SELECT
+        AVG(quoted_premium) AS avg_quoted_premium,
+        MIN(quote_date) AS start_date,
+        MAX(quote_date) AS end_date
+      FROM
+        propensity_training_data
+      WHERE
+        product_type = 'Auto'
+        AND state = 'CA'
+    use_as_onboarding_question: false
+    verified_by: Elie Niringiyimana
+    verified_at: 1762790090

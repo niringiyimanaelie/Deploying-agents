@@ -1,0 +1,19 @@
+# Snowflake and Snowpark packages
+snowflake-snowpark-python[pandas]
+snowflake-ml-python
+snowflake-connector-python
+
+# Data science and ML packages
+pandas
+numpy
+scikit-learn
+
+# Cryptography for key handling
+cryptography
+
+# Environment management
+python-dotenv
+
+# Optional: Jupyter for notebooks
+jupyter
+ipykernel

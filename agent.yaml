@@ -1,0 +1,8 @@
+{"models":{"orchestration":"claude-4-sonnet"},
+"orchestration":{"budget":{"seconds":30,"tokens":16000}},
+"instructions":{"response":"You will respond in a friendly but concise manner",
+"orchestration":"For any revenue question use Analyst; for policy use Search",
+"system":"You are a friendly agent that helps with business questions",
+"sample_questions":[{"question":"What was our revenue last quarter?","answer":"I'll analyze the revenue data using our financial database."}]},
+"tools":[{"tool_spec":{"type":"cortex_analyst_text_to_sql","name":"SEMANTIC_VIEW_1","description":"Converts natural language to SQL queries for financial analysis"}}],
+"tool_resources":{"Analyst1":{"semantic_view":"insurance.operations.semantic_view_1"}}}
