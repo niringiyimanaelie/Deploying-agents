@@ -1,0 +1,10 @@
+from sklearn.linear_model import LinearRegression
+
+# X contains all your features
+X = df[['x1', 'x2', 'x3', 'x4']]
+y = df['y']
+
+model = LinearRegression().fit(X, y)
+
+print("Coefficients:", model.coef_)     # a1, a2, a3, ...
+print("Intercept:", model.intercept_)   # b
